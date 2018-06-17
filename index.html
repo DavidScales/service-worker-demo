@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0,
+    initial-scale=1.0, user-scalable=yes">
+    <meta charset="utf-8">
+    <title>Service Worker Lifecycle Demo</title>
+
+    <link rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet"
+    href="https://code.getmdl.io/1.2.1/material.indigo-deep_orange.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/atom-one-light.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+  </head>
+
+  <body id="body">
+
+    <!-- HTML skeleton -->
+
+    <h3 class="header mdl-color--primary mdl-shadow--2dp">
+      Service Worker Life Cycle Demo
+    </h3>
+
+    <div class="container">
+
+      <div class="container-code mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Code</h2>
+          </div>
+        <div class="code-text mdl-card__supporting-text">
+          <pre class="pre"><code id="code"></code></pre>
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+          <button id="run"
+            class="button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--primary">
+            Run Code
+          </button>
+        </div>
+      </div>
+
+      <div class="container-console mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Console</h2>
+          </div>
+        <div id="console" class="mdl-card__supporting-text"></div>
+      </div>
+
+      <div class="container-notes mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">What's happening?</h2>
+        </div>
+        <div id="notes" class="mdl-card__supporting-text"></div>
+        <div class="mdl-card__actions mdl-card--border">
+          <button id="next"
+          class="button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--primary">
+            Next
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Templates -->
+
+    <script id="template-register-1" type="text/x-handlebars-template">
+  &lt;script&gt;
+    navigator.serviceWorker.register('<strong>service-worker-v1.js</strong>')
+    .then(function() {
+      // service-worker-v1 is registered!
+    })
+    .catch(function(error) {
+      console.log('Registration failed:', error);
+    });
+  &lt;/script&gt;
+    </script>
+
+    <script id="template-register-2" type="text/x-handlebars-template">
+  &lt;script&gt;
+    navigator.serviceWorker.register('<strong>service-worker-v2.js</strong>')
+    .then(function() {
+      // service-worker-v2 is registered!
+    })
+    .catch(function(error) {
+      console.log('Registration failed:', error);
+    });
+  &lt;/script&gt;
+    </script>
+
+    <script id="template-register-3" type="text/x-handlebars-template">
+  &lt;script&gt;
+    navigator.serviceWorker.register('<strong>service-worker-v3.js</strong>')
+    .then(function() {
+      // service-worker-v3 is registered!
+    })
+    .catch(function(error) {
+      console.log('Registration failed:', error);
+    });
+  &lt;/script&gt;
+    </script>
+
+    <script id="template-try-new" type="text/x-handlebars-template">
+      Nothing yet. Run the code!
+    </script>
+
+    <script id="template-new" type="text/x-handlebars-template">
+      You've just added a service worker to this app!<br><br>
+      The service worker life cycle begins with registration.
+      Registration tells the browser where your service worker is located
+      (<strong>service-worker-v1.js</strong> in this case), and to start
+      installing it in the background.<br><br>
+      Registering a new service worker on a site that doesn't already
+      have a service worker will cause the browser to install and activate
+      it. Now the service worker is controlling all resource requests from
+      this app!
+    </script>
+
+    <script id="template-try-existing" type="text/x-handlebars-template">
+      What? The code is the same!<br><br>
+      Let's do an experiment: try to register the same service worker
+      (<strong>service-worker-v1.js</strong>), again.<br><br>
+      What do you think will happen? Run the code!
+    </script>
+
+    <script id="template-existing" type="text/x-handlebars-template">
+      Do you see how <strong>service-worker-v1.js</strong> was registered again,
+      but not reinstalled or reactivated?<br><br>
+      Re-registering the same service worker doesn't cause any changes. Our
+      v1 service worker is still installed and active.
+    </script>
+
+    <script id="template-try-updated" type="text/x-handlebars-template">
+      Now we have an updated service worker,
+      <strong>service-worker-v2.js</strong>.<br><br>
+      Let's see what happens when we try to register a new service worker.
+      What do you think will happen?<br><br>
+      Run the code!
+    </script>
+
+    <script id="template-updated" type="text/x-handlebars-template">
+      It looks like the new service worker registered and installed, but it
+      didn't activate?<br><br>
+      That's because the old service worker is still in control!<br><br>
+      The browser will only let one service worker be active at a time. As long
+      as a page or tab that the old service worker controls is open, it won't
+      surrender control. Even reloading the page is insufficient, because the
+      page is requested while the old service worker is active.<br><br>
+      Side note: You don't have to rename the service worker file for it to be
+      considered "new". When a service worker is registered, the browser simply
+      checks for a byte-difference to qualify it as new. So we could have
+      alternatively edited and re-registered <strong>service-worker-v1.js</strong>.
+    </script>
+
+    <script id="template-try-skip" type="text/x-handlebars-template">
+      So is there a way to force an updated service worker to take over, without
+      having to close all our tabs and pages?<br><br>
+      I'm glad you asked that question! Let's try to register another new
+      service worker, <strong>service-worker-v3.js</strong>.<br><br>
+      Run the code!
+    </script>
+
+    <script id="template-skip" type="text/x-handlebars-template">
+      Bam! Wizardry and magic. This time, our new v3 service worker registered,
+      installed, and activated.<br><br>
+      The <strong>service-worker-v3.js</strong> script contained a
+      <strong>skipWaiting()</strong> command. This allows a new service worker
+      to take over right away, even if pages under an old service worker's
+      control are still open.<br><br>
+      That's it! You now understand the basics of the service worker lifecycle,
+      which can be one of the trickiest aspects of using service workers.
+    </script>
+
+    <!-- JavaScript -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js">
+    </script>
+    <script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+    <script src="js/main.js"></script>
+
+  </body>
+</html>

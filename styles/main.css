@@ -1,0 +1,53 @@
+.header {
+  margin: 0;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.container-code,
+.container-console,
+.container-notes {
+  margin: 10px;
+}
+
+/*Notes & Code formatting*/
+
+#notes,
+.code-text {
+  height: calc(100% - 53px - 60px);
+}
+
+.container-notes {
+  flex-grow: 1;
+  max-width: 700px;
+}
+
+.container-code {
+  width: auto;
+  min-width: 515px;
+}
+
+#code {
+  color: black;
+}
+
+.code-text {
+  width: calc(100% - 10px);
+  padding: 5px;
+}
+
+.pre {
+  margin: 0;
+}
+
+/*Buttons*/
+
+.button {
+  color: white;
+}
